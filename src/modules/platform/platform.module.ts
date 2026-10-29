@@ -1,13 +1,19 @@
-import { Module } from '@nestjs/common';
+import { type MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { APP_CONFIG, ConfigService, loadConfig } from './config/index.js';
 import { PlatformFacade } from './platform.facade.js';
+import { RequestContextMiddleware, RequestContextService } from './request-context/index.js';
 
 @Module({
   providers: [
     { provide: APP_CONFIG, useFactory: () => loadConfig() },
     ConfigService,
+    RequestContextService,
     PlatformFacade,
   ],
-  exports: [PlatformFacade, ConfigService],
+  exports: [PlatformFacade, ConfigService, RequestContextService],
 })
-export class PlatformModule {}
+export class PlatformModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestContextMiddleware).forRoutes('{*path}');
+  }
+}
