@@ -1,11 +1,28 @@
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
-import { ConfigError, ConfigService, loadConfig } from './modules/platform/index.js';
+import { ApiModule } from './api.module.js';
+import { ConfigError, loadConfig, type AppConfig } from './modules/platform/index.js';
+import { WorkerModule } from './worker.module.js';
+
+async function bootstrapApi(config: AppConfig) {
+  const app = await NestFactory.create(ApiModule);
+  app.enableShutdownHooks();
+  await app.listen(config.PORT);
+}
+
+async function bootstrapWorker() {
+  const app = await NestFactory.createApplicationContext(WorkerModule);
+  app.enableShutdownHooks();
+  // Nothing holds the event loop open until queue connections exist; shutdown hooks re-raise the signal to exit.
+  setInterval(() => undefined, 2 ** 30);
+  new Logger('Worker').log('Worker started');
+}
 
 async function bootstrap() {
   // Validate before Nest starts so a bad environment prints a short message, not a DI stack trace.
+  let config: AppConfig;
   try {
-    loadConfig();
+    config = loadConfig();
   } catch (error) {
     if (error instanceof ConfigError) {
       console.error(error.message);
@@ -13,7 +30,10 @@ async function bootstrap() {
     }
     throw error;
   }
-  const app = await NestFactory.create(AppModule);
-  await app.listen(app.get(ConfigService).get('PORT'));
+  if (config.APP_MODE === 'worker') {
+    await bootstrapWorker();
+  } else {
+    await bootstrapApi(config);
+  }
 }
 await bootstrap();

@@ -52,6 +52,8 @@ If a host port is taken, override it: `POSTGRES_PORT`, `REDIS_PORT`, `MAILPIT_SM
 
 Copy `.env.example` to `.env` and export it (e.g. `node --env-file=.env dist/main`). Variables are validated with Zod at boot; a missing or invalid one exits with a message naming it.
 
+`APP_MODE` selects the entry mode of the one image: `api` (default, HTTP on `PORT`) or `worker` (no HTTP; processors and schedulers).
+
 ## Compile and run the project
 
 ```bash

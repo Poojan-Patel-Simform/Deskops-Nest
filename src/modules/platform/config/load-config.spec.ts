@@ -7,11 +7,21 @@ const valid = {
 
 describe('loadConfig', () => {
   it('returns typed config with defaults', () => {
-    expect(loadConfig(valid)).toEqual({ ...valid, NODE_ENV: 'development', PORT: 3000 });
+    expect(loadConfig(valid)).toEqual({
+      ...valid,
+      NODE_ENV: 'development',
+      APP_MODE: 'api',
+      PORT: 3000,
+    });
   });
 
   it('coerces PORT to a number', () => {
     expect(loadConfig({ ...valid, PORT: '4000' }).PORT).toBe(4000);
+  });
+
+  it('accepts worker mode and rejects unknown modes', () => {
+    expect(loadConfig({ ...valid, APP_MODE: 'worker' }).APP_MODE).toBe('worker');
+    expect(() => loadConfig({ ...valid, APP_MODE: 'foo' })).toThrow(/APP_MODE/);
   });
 
   it('names a missing variable', () => {
