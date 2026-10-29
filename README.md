@@ -31,6 +31,23 @@
 $ npm install
 ```
 
+## Local infrastructure
+
+Postgres 16, Redis 7 and Mailpit run via Docker Compose (file storage uses Cloudinary, so no container).
+
+```bash
+$ docker compose up -d --wait   # start
+$ docker compose down           # stop (add -v to wipe data)
+```
+
+| Service  | Address                                               |
+| -------- | ----------------------------------------------------- |
+| Postgres | `postgresql://deskops:deskops@localhost:5432/deskops` |
+| Redis    | `redis://localhost:6379`                              |
+| Mailpit  | SMTP `localhost:1025`, UI http://localhost:8025       |
+
+If a host port is taken, override it: `POSTGRES_PORT`, `REDIS_PORT`, `MAILPIT_SMTP_PORT`, `MAILPIT_UI_PORT`.
+
 ## Compile and run the project
 
 ```bash
