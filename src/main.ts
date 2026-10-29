@@ -1,11 +1,18 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { ApiModule } from './api.module.js';
-import { ConfigError, loadConfig, type AppConfig } from './modules/platform/index.js';
+import {
+  ConfigError,
+  configureHttp,
+  loadConfig,
+  type AppConfig,
+} from './modules/platform/index.js';
 import { WorkerModule } from './worker.module.js';
 
 async function bootstrapApi(config: AppConfig) {
-  const app = await NestFactory.create(ApiModule);
+  const app = await NestFactory.create<NestExpressApplication>(ApiModule, { bodyParser: false });
+  configureHttp(app, config.BODY_LIMIT_BYTES);
   app.enableShutdownHooks();
   await app.listen(config.PORT);
 }

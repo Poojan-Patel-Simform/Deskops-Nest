@@ -12,6 +12,7 @@ describe('loadConfig', () => {
       NODE_ENV: 'development',
       APP_MODE: 'api',
       PORT: 3000,
+      BODY_LIMIT_BYTES: 102_400,
     });
   });
 

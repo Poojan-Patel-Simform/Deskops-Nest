@@ -34,6 +34,15 @@ function titleFor(status: number): string {
     .join(' ');
 }
 
+/** Errors from body-parser and friends (http-errors): not HttpExceptions, but carry a safe client status. */
+function clientStatusOf(exception: unknown): number | undefined {
+  if (typeof exception !== 'object' || exception === null) return undefined;
+  const { status, expose } = exception as { status?: unknown; expose?: unknown };
+  return typeof status === 'number' && status >= 400 && status < 500 && expose === true
+    ? status
+    : undefined;
+}
+
 function describe(exception: HttpException): Pick<ProblemDetails, 'detail' | 'errors'> {
   const body = exception.getResponse();
   if (typeof body === 'string') return { detail: body };
@@ -58,13 +67,18 @@ export class ProblemDetailsFilter implements ExceptionFilter {
     const res = http.getResponse<Response>();
     const requestId = this.context.requestId;
 
-    const status = exception instanceof HttpException ? exception.getStatus() : 500;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : (clientStatusOf(exception) ?? 500);
     const isServerError = status >= 500;
 
     // Never echo internals for 5xx; the stack goes to the log, keyed by request ID.
     const details = isServerError
       ? { detail: INTERNAL_DETAIL }
-      : describe(exception as HttpException);
+      : exception instanceof HttpException
+        ? describe(exception)
+        : { detail: (exception as Error).message };
     if (isServerError) {
       this.logger.error(
         `${req.method} ${req.originalUrl} -> ${String(status)} [${requestId ?? '-'}]`,

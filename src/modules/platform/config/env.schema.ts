@@ -4,6 +4,7 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   APP_MODE: z.enum(['api', 'worker']).default('api'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  BODY_LIMIT_BYTES: z.coerce.number().int().min(1024).default(102_400),
   DATABASE_URL: z.url({
     protocol: /^postgres(ql)?$/,
     message: 'must be a postgres:// or postgresql:// URL',
