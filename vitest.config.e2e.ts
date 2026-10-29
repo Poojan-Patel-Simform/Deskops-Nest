@@ -6,6 +6,10 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
+    env: {
+      DATABASE_URL: 'postgresql://deskops:deskops@localhost:5432/deskops',
+      REDIS_URL: 'redis://localhost:6379',
+    },
     include: ['**/*.e2e-spec.ts'],
   },
 });

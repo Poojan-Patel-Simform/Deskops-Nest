@@ -48,6 +48,10 @@ $ docker compose down           # stop (add -v to wipe data)
 
 If a host port is taken, override it: `POSTGRES_PORT`, `REDIS_PORT`, `MAILPIT_SMTP_PORT`, `MAILPIT_UI_PORT`.
 
+## Configuration
+
+Copy `.env.example` to `.env` and export it (e.g. `node --env-file=.env dist/main`). Variables are validated with Zod at boot; a missing or invalid one exits with a message naming it.
+
 ## Compile and run the project
 
 ```bash
