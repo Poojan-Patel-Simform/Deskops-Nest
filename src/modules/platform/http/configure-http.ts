@@ -1,4 +1,11 @@
+import type { INestApplication } from '@nestjs/common';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { API_PREFIX } from './http.constants.js';
+
+/** Mounts every route under `/v1`. Call it on the real app, the OpenAPI generator and e2e apps alike. */
+export function configureApiPrefix(app: INestApplication): void {
+  app.setGlobalPrefix(API_PREFIX);
+}
 
 /**
  * Body parsers with an explicit size cap. The app must be created with `bodyParser: false`,

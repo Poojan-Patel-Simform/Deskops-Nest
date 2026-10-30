@@ -4,6 +4,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { ApiModule } from './api.module.js';
 import {
   ConfigError,
+  configureApiPrefix,
   configureHttp,
   loadConfig,
   type AppConfig,
@@ -12,6 +13,7 @@ import { WorkerModule } from './worker.module.js';
 
 async function bootstrapApi(config: AppConfig) {
   const app = await NestFactory.create<NestExpressApplication>(ApiModule, { bodyParser: false });
+  configureApiPrefix(app);
   configureHttp(app, config.BODY_LIMIT_BYTES);
   app.enableShutdownHooks();
   await app.listen(config.PORT);

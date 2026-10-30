@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { APP_CONFIG } from './config.constants.js';
 import type { AppConfig } from './env.schema.js';
-
-export const APP_CONFIG = Symbol('APP_CONFIG');
 
 @Injectable()
 export class ConfigService {

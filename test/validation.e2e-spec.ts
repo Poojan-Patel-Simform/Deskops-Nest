@@ -6,7 +6,11 @@ import request from 'supertest';
 import type { Server } from 'node:http';
 import { z } from 'zod';
 import { ApiModule } from './../src/api.module.js';
-import { ZodValidationPipe, configureHttp } from './../src/modules/platform/index.js';
+import {
+  ZodValidationPipe,
+  configureApiPrefix,
+  configureHttp,
+} from './../src/modules/platform/index.js';
 
 const createThing = z.object({ name: z.string().min(1) });
 
@@ -27,6 +31,7 @@ describe('Validation and body limits (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({ imports: [TestModule] }).compile();
     const nest = moduleFixture.createNestApplication<NestExpressApplication>({ bodyParser: false });
+    configureApiPrefix(nest);
     configureHttp(nest, 1024);
     app = nest;
     await app.init();
@@ -37,13 +42,13 @@ describe('Validation and body limits (e2e)', () => {
   });
 
   it('accepts a valid body', async () => {
-    const res = await request(app.getHttpServer()).post('/things').send({ name: 'desk' });
+    const res = await request(app.getHttpServer()).post('/v1/things').send({ name: 'desk' });
     expect(res.status).toBe(201);
     expect(res.body).toEqual({ name: 'desk' });
   });
 
   it('returns 400 problem details listing validation errors', async () => {
-    const res = await request(app.getHttpServer()).post('/things').send({ name: '' });
+    const res = await request(app.getHttpServer()).post('/v1/things').send({ name: '' });
     expect(res.status).toBe(400);
     expect(res.headers['content-type']).toMatch(/^application\/problem\+json/);
     expect((res.body as { errors: string[] }).errors).toEqual([expect.stringMatching(/^name: /)]);
@@ -51,7 +56,7 @@ describe('Validation and body limits (e2e)', () => {
 
   it('returns 413 problem details when the body exceeds the limit', async () => {
     const res = await request(app.getHttpServer())
-      .post('/things')
+      .post('/v1/things')
       .send({ name: 'x'.repeat(2000) });
     expect(res.status).toBe(413);
     expect(res.headers['content-type']).toMatch(/^application\/problem\+json/);
@@ -60,7 +65,7 @@ describe('Validation and body limits (e2e)', () => {
 
   it('returns 400 problem details for malformed JSON', async () => {
     const res = await request(app.getHttpServer())
-      .post('/things')
+      .post('/v1/things')
       .set('content-type', 'application/json')
       .send('{"name":');
     expect(res.status).toBe(400);

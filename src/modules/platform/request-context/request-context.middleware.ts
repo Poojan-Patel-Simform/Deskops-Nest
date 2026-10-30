@@ -1,12 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { Injectable, type NestMiddleware } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
+import { REQUEST_ID_HEADER, VALID_REQUEST_ID } from './request-context.constants.js';
 import { RequestContextService } from './request-context.service.js';
-
-export const REQUEST_ID_HEADER = 'x-request-id';
-
-// Inbound IDs end up in logs and response headers, so accept only a conservative shape.
-const VALID_REQUEST_ID = /^[A-Za-z0-9._-]{1,128}$/;
 
 export function resolveRequestId(header: string | string[] | undefined): string {
   const candidate = Array.isArray(header) ? header[0] : header;

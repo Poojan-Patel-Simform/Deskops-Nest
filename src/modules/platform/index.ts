@@ -5,5 +5,5 @@ export type { AppConfig } from './config/index.js';
 export { RequestContextService } from './request-context/index.js';
 export type { RequestContextStore } from './request-context/index.js';
 export { ZodValidationPipe } from './validation/index.js';
-export { configureHttp } from './http/index.js';
+export { API_PREFIX, configureApiPrefix, configureHttp } from './http/index.js';
 export { buildOpenApiDocument } from './openapi/index.js';

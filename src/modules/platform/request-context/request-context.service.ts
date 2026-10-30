@@ -1,9 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { Injectable } from '@nestjs/common';
-
-export interface RequestContextStore {
-  requestId: string;
-}
+import type { RequestContextStore } from './request-context.types.js';
 
 /** Per-request state carried across async boundaries without threading it through call signatures. */
 @Injectable()

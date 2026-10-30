@@ -1,6 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { RequestContextService } from '../request-context/index.js';
-import { type ProblemDetails, ProblemDetailsFilter } from './problem-details.filter.js';
+import { ProblemDetailsFilter } from './problem-details.filter.js';
+import type { ProblemDetails } from './problem-details.types.js';
 
 describe('ProblemDetailsFilter', () => {
   const context = new RequestContextService();

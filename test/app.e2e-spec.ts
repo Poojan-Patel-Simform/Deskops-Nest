@@ -3,6 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { Server } from 'node:http';
 import { ApiModule } from './../src/api.module.js';
+import { configureApiPrefix } from './../src/modules/platform/index.js';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication<Server>;
@@ -13,11 +14,12 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    configureApiPrefix(app);
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!');
+  it('/v1 (GET)', () => {
+    return request(app.getHttpServer()).get('/v1').expect(200).expect('Hello World!');
   });
 
   afterEach(async () => {

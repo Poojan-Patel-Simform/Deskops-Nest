@@ -8,21 +8,8 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { RequestContextService } from '../request-context/index.js';
-
-/** RFC 9457 problem details, plus the `requestId` extension so clients can quote it in support requests. */
-export interface ProblemDetails {
-  type: string;
-  title: string;
-  status: number;
-  detail?: string;
-  instance: string;
-  requestId?: string | undefined;
-  errors?: string[];
-}
-
-export const PROBLEM_CONTENT_TYPE = 'application/problem+json';
-
-const INTERNAL_DETAIL = 'An unexpected error occurred.';
+import { INTERNAL_DETAIL, PROBLEM_CONTENT_TYPE } from './problem-details.constants.js';
+import type { ProblemDetails } from './problem-details.types.js';
 
 function titleFor(status: number): string {
   const key = HttpStatus[status];

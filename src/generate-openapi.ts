@@ -3,7 +3,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { ApiModule } from './api.module.js';
-import { buildOpenApiDocument } from './modules/platform/index.js';
+import { buildOpenApiDocument, configureApiPrefix } from './modules/platform/index.js';
 
 /** Writes the OpenAPI document without listening on a port. Usage: `node dist/generate-openapi [outFile]`. */
 async function generate() {
@@ -13,6 +13,7 @@ async function generate() {
     bodyParser: false,
     logger: ['error'],
   });
+  configureApiPrefix(app);
   const document = buildOpenApiDocument(app, pkg.version);
   await mkdir(dirname(out), { recursive: true });
   await writeFile(out, `${JSON.stringify(document, null, 2)}\n`);
