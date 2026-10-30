@@ -1,0 +1,39 @@
+name: OpenAPI
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths: ['src/**', 'package.json', 'package-lock.json', '.github/workflows/openapi.yml']
+
+jobs:
+  openapi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      DATABASE_URL: postgresql://deskops:deskops@localhost:5432/deskops
+      REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Generate openapi.json
+        run: npm run openapi:generate -- dist/openapi.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openapi
+          path: dist/openapi.json
+      - name: Check tag matches package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: test "v$(node -p "require('./package.json').version")" = "${{ github.ref_name }}"
+      - name: Publish release asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp dist/openapi.json "openapi-${{ github.ref_name }}.json"
+          gh release create "${{ github.ref_name }}" "openapi-${{ github.ref_name }}.json#openapi.json" --generate-notes
